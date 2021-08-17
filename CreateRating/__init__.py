@@ -32,8 +32,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             return func.HttpResponse("productId is not valid", status_code=400)
         if 'rating' not in req_body:
             return func.HttpResponse("rating is required", status_code=400)
-        if req_body.get('rating') < 0 or req_body.get('rating') > 5:
-            return func.HttpResponse("rating needs to be between 0 and 5", status_code=400)
+        try:
+            rating = int(req_body.get('rating'))
+            if rating < 0 or rating > 5:
+                return func.HttpResponse("rating needs to be between 0 and 5", status_code=400)
+        except ValueError:
+            return func.HttpResponse("rating needs to be a number between 0 and 5", status_code=400)
     except ValueError:
         return func.HttpResponse("something went wrong", status_code=500)
     
