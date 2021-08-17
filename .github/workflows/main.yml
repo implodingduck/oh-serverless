@@ -12,6 +12,11 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  
+env:
+  AZURE_FUNCTIONAPP_NAME: bfyoc-oh4-hacker03 # set this to your application's name
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'   # set this to the path to your web app project, defaults to the repository root
+  PYTHON_VERSION: '3.8'                 # set this to the python version to use (supports 3.6, 3.7, 3.8)
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,13 +30,26 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: 'Resolve Project Dependencies Using Pip'
+        shell: bash
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
-     
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+          popd
+          
+      - name: Azure Functions Action
+        uses: Azure/functions-action@v1.4.0
+        with:
+          # Name of the Azure Function App
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          # Path to package or folder. *.zip or a folder to deploy
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          # Publish profile (*.publishsettings) file contents with web deploy secrets
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          
