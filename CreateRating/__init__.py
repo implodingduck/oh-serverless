@@ -21,6 +21,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         req_body = req.get_json()
         if 'userId' not in req_body:
             return func.HttpResponse("userId is required", status_code=400)
+        resp = requests.get(f'https://serverlessohapi.azurewebsites.net/api/GetUser?userId={req_body.get("userId")}')
+        if resp.status_code == 400:
+            return func.HttpResponse("userId is not valid", status_code=400)
     except ValueError:
         return func.HttpResponse("something went wrong", status_code=500)
     
