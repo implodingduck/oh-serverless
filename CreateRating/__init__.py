@@ -3,7 +3,8 @@ import logging
 import azure.functions as func
 import requests
 
-
+import uuid
+from datetime import date, datetime
 # {
 #   "userId": "cc20a6fb-a91f-4192-874d-132493685376",
 #   "productId": "4c25613a-a3c2-4ef3-8e02-9c335eb23204",
@@ -13,7 +14,7 @@ import requests
 # }
 
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
+def main(req: func.HttpRequest,  doc: func.Out[func.Document]) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
 
@@ -38,10 +39,20 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 return func.HttpResponse("rating needs to be between 0 and 5", status_code=400)
         except ValueError:
             return func.HttpResponse("rating needs to be a number between 0 and 5", status_code=400)
+        req_body['id'] = str(uuid.uuid4())
+        req_body['timestamp'] = datetime.utcnow().isoformat()
+        req_body['locationName'] = req_body.get('locationName', '')
+        req_body['userNotes'] = req_body.get('userNotes', '')
+        doc.set(func.Document.from_json(req_body))
+
+        return func.HttpResponse(
+            f"{req_body}",
+            status_code=200
+        )
     except ValueError:
         return func.HttpResponse("something went wrong", status_code=500)
     
-
+    
     return func.HttpResponse(
             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
             status_code=200
