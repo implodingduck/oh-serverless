@@ -24,6 +24,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         resp = requests.get(f'https://serverlessohapi.azurewebsites.net/api/GetUser?userId={req_body.get("userId")}')
         if resp.status_code == 400:
             return func.HttpResponse("userId is not valid", status_code=400)
+        
+        if 'productId' not in req_body:
+            return func.HttpResponse("productId is required", status_code=400)
+        resp = requests.get(f'https://serverlessohapi.azurewebsites.net/api/GetProduct?productId={req_body.get("productId")}')
+        if resp.status_code == 400:
+            return func.HttpResponse("productId is not valid", status_code=400)
     except ValueError:
         return func.HttpResponse("something went wrong", status_code=500)
     
