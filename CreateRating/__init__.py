@@ -40,12 +40,12 @@ def main(req: func.HttpRequest,  doc: func.Out[func.Document]) -> func.HttpRespo
         except ValueError:
             return func.HttpResponse("rating needs to be a number between 0 and 5", status_code=400)
         req_body['id'] = str(uuid.uuid4())
-        req_body['timestamp'] = datetime.utcnow().isoformat()
+        req_body['timestamp'] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%SZ")
         req_body['locationName'] = req_body.get('locationName', '')
         req_body['userNotes'] = req_body.get('userNotes', '')
-        print("DEBUGGING")
-        print(f"{req_body}")
-        print(json.dumps(req_body))
+        # print("DEBUGGING")
+        # print(f"{req_body}")
+        # print(json.dumps(req_body))
         doc.set(func.Document.from_dict(req_body))
 
         return func.HttpResponse(
