@@ -46,7 +46,7 @@ def main(req: func.HttpRequest,  doc: func.Out[func.Document]) -> func.HttpRespo
         print("DEBUGGING")
         print(f"{req_body}")
         print(json.dumps(req_body))
-        doc.set(func.Document.from_json(req_body))
+        doc.set(func.Document.from_dict(req_body))
 
         return func.HttpResponse(
             f"{json.dumps(req_body)}",
