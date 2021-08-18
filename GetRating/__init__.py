@@ -1,24 +1,26 @@
 import logging
 
 import azure.functions as func
-
+from azure.cosmos import CosmosClient
+import os 
+import json 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
     ratingId = req.route_params.get('ratingId')
-    if not ratingId:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            ratingId = req_body.get('ratingId')
+    connection_str = os.environ.get('AzureCosmosDBConnectionString')
+    client = CosmosClient(connection_str)
+    database_name = 'bfyocproductrating'
+    database = client.get_database_client(database_name)
+    container_name = 'ProductRating'
+    container = database.get_container_client(container_name)
+    query = 'SELECT * FROM ProductRating r WHERE r.id="{ratingId}"'
+    retVal = {}
+    for item in container.query_items(query=query, enable_cross_partition_query=True):
+        print(f'{item}')
+        retVal = item
 
-    if ratingId:
-        return func.HttpResponse(f"Hello, {ratingId}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a ratingId in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
+    
+    return func.HttpResponse(f"{json.dumps(retVal)}", status_code=200)
+    
