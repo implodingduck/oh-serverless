@@ -20,7 +20,7 @@ def main(req: func.HttpRequest, doc: func.DocumentList) -> func.HttpResponse:
             'timestamp': doc[0].get('timestamp'),
             'locationName': doc[0].get('locationName', ''),
             'rating': doc[0].get('rating'),
-            'userNotes': doc[0].get('userNotes', 'usernotes'),
+            'userNotes': doc[0].get('userNotes', ''),
         }
         return func.HttpResponse(f"{json.dumps(retval)}", status_code=200)
     else:
