@@ -1,0 +1,29 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "route": "ratings",
+      "methods": [
+        "get"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    },
+    {
+      "type": "cosmosDB",
+      "name": "doc",
+      "databaseName": "bfyocproductrating",
+      "collectionName": "ProductRating",
+      "connectionStringSetting": "AzureCosmosDBConnectionString",
+      "direction": "in",
+      "sqlQuery": "SELECT r.id, r.userId, r.productId, r.timestamp, r.locationName, r.rating, r.userNotes FROM ProductRating r"
+    }
+  ]
+}
