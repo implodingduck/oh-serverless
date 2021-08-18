@@ -12,6 +12,7 @@ def main(req: func.HttpRequest, doc: func.DocumentList) -> func.HttpResponse:
     logging.info(ratingId)
     logging.info(f'{doc}')
     if len(doc) > 0:
+        logging.info(f'{doc[0].to_json()}')
         retval = {
             'id': doc[0].get('id'),
             'userId': doc[0].get('userId'),
