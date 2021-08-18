@@ -23,7 +23,7 @@
       "collectionName": "ProductRating",
       "connectionStringSetting": "AzureCosmosDBConnectionString",
       "direction": "in",
-      "sqlQuery": "SELECT r.rating FROM ProductRating r where r.id = {ratingId}"
+      "sqlQuery": "SELECT r.id, r.userId, r.productId, r.timestamp, r.locationName, r.rating, r.userNotes FROM ProductRating r WHERE r.id = {ratingId}"
     }
   ]
 }

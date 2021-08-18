@@ -13,15 +13,15 @@ def main(req: func.HttpRequest, doc: func.DocumentList) -> func.HttpResponse:
     logging.info(f'{doc}')
     if len(doc) > 0:
         retval = {
-            'id': doc[0]['id'],
-            'userId': doc[0]['userId'],
-            'productId': doc[0]['productId'],
-            'rating': doc[0]['rating'],
-            'userNotes': doc[0]['userNotes'],
-            'locationName': doc[0]['locationName'],
-            'timestamp': doc[0]['timestamp']
+            'id': doc[0].get('id'),
+            'userId': doc[0].get('userId'),
+            'productId': doc[0].get('productId'),
+            'timestamp': doc[0].get('timestamp'),
+            'locationName': doc[0].get('locationName', ''),
+            'rating': doc[0].get('rating'),
+            'userNotes': doc[0].get('userNotes', 'usernotes'),
         }
-        return func.HttpResponse(f"{retval}", status_code=200)
+        return func.HttpResponse(f"{json.dumps(retval)}", status_code=200)
     else:
         return func.HttpResponse("{}", status_code=404)
     
