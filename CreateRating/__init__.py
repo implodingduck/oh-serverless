@@ -43,6 +43,9 @@ def main(req: func.HttpRequest,  doc: func.Out[func.Document]) -> func.HttpRespo
         req_body['timestamp'] = datetime.utcnow().isoformat()
         req_body['locationName'] = req_body.get('locationName', '')
         req_body['userNotes'] = req_body.get('userNotes', '')
+        print("DEBUGGING")
+        print(f"{req_body}")
+        print(json.dumps(req_body))
         doc.set(func.Document.from_json(req_body))
 
         return func.HttpResponse(
