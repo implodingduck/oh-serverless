@@ -15,6 +15,15 @@
       "type": "http",
       "direction": "out",
       "name": "$return"
+    },
+    {
+      "type": "cosmosDB",
+      "name": "doc",
+      "databaseName": "bfyocproductrating",
+      "collectionName": "ProductRating",
+      "connectionStringSetting": "AzureCosmosDBConnectionString",
+      "direction": "in",
+      "id": "{ratingId}"
     }
   ]
 }
