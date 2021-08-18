@@ -2,7 +2,7 @@ import logging
 
 import azure.functions as func
 import requests
-
+import json
 import uuid
 from datetime import date, datetime
 # {
@@ -46,7 +46,7 @@ def main(req: func.HttpRequest,  doc: func.Out[func.Document]) -> func.HttpRespo
         doc.set(func.Document.from_json(req_body))
 
         return func.HttpResponse(
-            f"{req_body}",
+            f"{json.dumps(req_body)}",
             status_code=200
         )
     except ValueError:
