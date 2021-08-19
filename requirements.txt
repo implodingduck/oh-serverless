@@ -3,3 +3,4 @@
 azure-functions
 azure-cosmos
 requests
+azure-functions-durable 
