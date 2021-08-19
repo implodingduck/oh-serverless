@@ -20,12 +20,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 post_data['productInformationCSVUrl'] = blob_url 
         logging.info(post_data)                               
         resp = requests.post('https://serverlessohmanagementapi.trafficmanager.net/api/order/combineOrderContent', data=json.dumps(post_data))
+        logging.info(resp.status_code)
+        logging.info(f'{resp.body}')
+
+        return func.HttpResponse(
+                f"{resp.json()}",
+                status_code=200
+        )
     except ValueError:
         pass
-    logging.info(resp.status_code)
-    logging.info(f'{resp.body}')
-
+    
     return func.HttpResponse(
-            f"{resp.json()}",
-            status_code=200
-    )
+                f"someting didnt happen right",
+                status_code=200
+        )
