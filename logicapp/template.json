@@ -1,0 +1,186 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_la_BFYOC_email_thing_name": {
+            "defaultValue": "la-BFYOC-email-thing",
+            "type": "String"
+        },
+        "connections_dynamicscrmonline_externalid": {
+            "defaultValue": "/subscriptions/${var.subscription_id}/resourceGroups/bfyocoh4hacker03/providers/Microsoft.Web/connections/dynamicscrmonline",
+            "type": "String"
+        },
+        "connections_office365_1_externalid": {
+            "defaultValue": "/subscriptions/${var.subscription_id}/resourceGroups/bfyocoh4hacker03/providers/Microsoft.Web/connections/office365-1",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_la_BFYOC_email_thing_name')]",
+            "location": "westus",
+            "tags": {
+                "createdby": "Shaun"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "actions": {
+                        "For_each_2": {
+                            "foreach": "@body('HTTP')",
+                            "actions": {
+                                "Append_to_string_variable": {
+                                    "runAfter": {
+                                        "Parse_JSON": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToStringVariable",
+                                    "inputs": {
+                                        "name": "tablecontent",
+                                        "value": "<tr><td>@{body('Parse_JSON')?['productName']}</td><td>@{body('Parse_JSON')?['productDescription']}</td><td>@{body('Parse_JSON')?['productId']}</td></tr>"
+                                    }
+                                },
+                                "Parse_JSON": {
+                                    "runAfter": {},
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@items('For_each_2')",
+                                        "schema": {
+                                            "properties": {
+                                                "productDescription": {
+                                                    "type": "string"
+                                                },
+                                                "productId": {
+                                                    "type": "string"
+                                                },
+                                                "productName": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "For_each_3": {
+                            "foreach": "@body('List_records_(deprecated)')?['value']",
+                            "actions": {
+                                "Send_an_email_(V2)": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "Bcc": "scallighan@microsoft.com",
+                                            "Body": "<!DOCTYPE html><html><body style=\"background-color: whitesmoke; color: #454545; font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; padding-bottom: 3em;\">  <table style=\"width:100%; color:#454545\">    <tr>      <td style=\"width:11em;\">        <img style=\"margin-left:1em;\"        src=\"https://serverlessoh.azureedge.net/public/ice-cream-2202561_320-circle.jpg\"          height=\"160\" width=\"160\" alt=\"Fruit Ice Cream\">      </td>      <td>        <p style=\"font-style: italic; font-size: 50px;        font-weight:600; margin-left: 1em;\">Best For You Organics</p>      </td>    </tr>  </table>  <p style=\"text-align: center; font-style: italic; font-size:  80px;\">New Ice Cream Line!</p>  <p style=\"margin:2em 0em; font-size: 20px; text-align: center;\">  Best For You Organics have a new line of fruit flavored ice creams.  Below is the information so you can start the ordering process:  </p>  <table style=\"width:100%; border-top: 1px solid #454545;  border-bottom: 1px solid #454545; color:#454545; padding: 1em; font-size: 20px;\">    <thead>      <tr>        <th style=\"padding-bottom: 1em;\" align=\"left\">Ice Cream</th>        <th style=\"padding-bottom: 1em;\" align=\"left\">Description</th>        <th style=\"padding-bottom: 1em;\" align=\"left\">Product ID</th>      </tr>    </thead>    <tbody style=\"font-size: 16px;\">  @{variables('tablecontent')}    </tbody>  </table>  <p style=\"text-align: center; margin-top: 3em;font-size: 20px;\">Please contact  your representative at Best For You Organics to get more information..</p></body></html>",
+                                            "Subject": "BFYOC Products from Team 4",
+                                            "To": "@items('For_each_3')?['emailaddress1']"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['office365_1']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/v2/Mail"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "HTTP": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "method": "GET",
+                                "uri": "https://serverlessohapi.azurewebsites.net/api/GetProducts"
+                            }
+                        },
+                        "Initialize_variable": {
+                            "runAfter": {
+                                "List_records_(deprecated)": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "tablecontent",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "List_records_(deprecated)": {
+                            "runAfter": {
+                                "HTTP": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['dynamicscrmonline']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/datasets/@{encodeURIComponent(encodeURIComponent('org01c23854.crm'))}/tables/@{encodeURIComponent(encodeURIComponent('contacts'))}/items"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "dynamicscrmonline": {
+                                "connectionId": "[parameters('connections_dynamicscrmonline_externalid')]",
+                                "connectionName": "dynamicscrmonline",
+                                "id": "/subscriptions/${var.subscription_id}/providers/Microsoft.Web/locations/westus/managedApis/dynamicscrmonline"
+                            },
+                            "office365_1": {
+                                "connectionId": "[parameters('connections_office365_1_externalid')]",
+                                "connectionName": "office365-1",
+                                "id": "/subscriptions/${var.subscription_id}/providers/Microsoft.Web/locations/westus/managedApis/office365"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
