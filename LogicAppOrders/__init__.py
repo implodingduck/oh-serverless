@@ -24,6 +24,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
 
     return func.HttpResponse(
-            f"{json.dumps(resp)}",
+            f"{json.dumps(resp.json())}",
             status_code=200
     )
