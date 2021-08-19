@@ -21,9 +21,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         resp = requests.post('https://serverlessohmanagementapi.trafficmanager.net/api/order/combineOrderContent', data=json.dumps(post_data))
     except ValueError:
         pass
-
+    logging.info(resp.status_code)
+    logging.info(f'{resp.body}')
 
     return func.HttpResponse(
-            f"{json.dumps(resp.json())}",
+            f"{resp.json()}",
             status_code=200
     )
