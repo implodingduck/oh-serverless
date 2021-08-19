@@ -17,7 +17,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if 'OrderLineItems' in blob_url:
                 post_data['orderLineItemsCSVUrl'] = blob_url
             if 'ProductInformation' in blob_url:
-                post_data['productInformationCSVUrl'] = blob_url                                
+                post_data['productInformationCSVUrl'] = blob_url 
+        logging.info(post_data)                               
         resp = requests.post('https://serverlessohmanagementapi.trafficmanager.net/api/order/combineOrderContent', data=json.dumps(post_data))
     except ValueError:
         pass
